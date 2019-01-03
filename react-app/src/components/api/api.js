@@ -5,16 +5,21 @@ import MeetupAPI from './meetup/meetup.js';
 import TheMovieDbAPI from './the-movie-db/the-movie-db.js';
 import YelpAPI from './yelp/yelp.js';
 import superagent from 'superagent';
+
 class AllAPIs extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
-  getResource = async (resource) => {
-    let data = await superagent.get(`https://city-explorer-backend.herokuapp.com/${resource}`)
+  getResource = (resource) => {
+    superagent.get(`https://city-explorer-backend.herokuapp.com/${resource}`)
     .query({data: this.props.rawData})
-    this.setState({[resource]: data})    
+    .then(results => {
+      this.setState({[resource]: results});
+      return results;
+    })
+    .catch(err => {console.log(err)});
   }
 
   render() {
@@ -26,11 +31,11 @@ class AllAPIs extends React.Component {
         <>
           <section className="error-container"></section>
           <div className="column-container">
-            <DarkSkyAPI data={this.state.weather} fetchData={this.getResource}/>
-            <HikingProjectAPI data={this.state.trails}/>
-            <MeetupAPI data={this.state.meetups}/>
-            <TheMovieDbAPI data={this.state.movies}/>
-            <YelpAPI data={this.state.yelp}/>
+            <DarkSkyAPI weatherData={this.props.apiData[0]} />
+            <HikingProjectAPI hikingData={this.props.apiData[1]} />
+            <MeetupAPI meetupData={this.props.apiData[2]} />
+            <TheMovieDbAPI movieData={this.props.apiData[3]} />
+            <YelpAPI yelpData={this.props.apiData[4]} />
           </div>
         </>
       );
